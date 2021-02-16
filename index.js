@@ -3,7 +3,7 @@ const puppeteer = require("puppeteer");
 
 async function scrapeData(url){
   var gotData = false;
-const browser = await puppeteer.launch();
+const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
 const page = await browser.newPage();
 await page.goto(url);
 //wait for all 6 balls and its innertext to appear
