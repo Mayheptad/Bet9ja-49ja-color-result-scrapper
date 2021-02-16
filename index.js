@@ -1,3 +1,4 @@
+var http = require("http");
 const fs = require("fs");
 const puppeteer = require("puppeteer");
 
@@ -50,12 +51,14 @@ fs.appendFile(fileName,result+"\n", (err)=>{
 
   function callScrapeDataAgain(){
    scrapeData("https://logigames.bet9ja.com/Games/Launcher?gameId=11000&provider=0&sid=&pff=1&skin=201");
-  };
-console.log("connected");
-
-
-
-
-
-
+  }
+///*config.httpPort*/ 
+//"Node server listening on port %d in %s mode", this.address().port, app.settings.env;
+http.createServer((request, response)=>{
+  if(request.url == "/" && request.method == "GET"){
+  response.writeHead(200, { 'Content-Type': 'text/html' });
+  response.end("your app is working", "utf-8");
+  }
+  
+}).listen(process.env.PORT || 3000,()=>{console.log("server working")});
 
