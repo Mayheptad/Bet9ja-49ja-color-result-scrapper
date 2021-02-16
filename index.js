@@ -3,7 +3,7 @@ const puppeteer = require("puppeteer");
 
 async function scrapeData(url){
   var gotData = false;
-const browser = await puppeteer.launch( { headless: false } );
+const browser = await puppeteer.launch();
 const page = await browser.newPage();
 await page.goto(url);
 //wait for all 6 balls and its innertext to appear
@@ -52,6 +52,7 @@ fs.appendFile(fileName,result+"\n", (err)=>{
    scrapeData("https://logigames.bet9ja.com/Games/Launcher?gameId=11000&provider=0&sid=&pff=1&skin=201");
   };
 console.log("connected");
+
 
 
 
