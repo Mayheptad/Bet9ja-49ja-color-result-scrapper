@@ -44,7 +44,6 @@ fs.appendFile(fileName,result+"\n", (err)=>{
        callScrapeDataAgain();
    }
 }});
- // check if the data has been saved to file
  }
 
  scrapeData("https://logigames.bet9ja.com/Games/Launcher?gameId=11000&provider=0&sid=&pff=1&skin=201");
