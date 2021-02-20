@@ -15,6 +15,7 @@
   "author": "mayheptad",
   "license": "ISC",
   "dependencies": {
+    "mongoose": "^5.11.15",
     "puppeteer": "^5.5.0"
   }
 }
