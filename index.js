@@ -1,7 +1,7 @@
 var http = require("http");
+const fetch = require('node-fetch');
 const mongoose = require("mongoose");
 const puppeteer = require("puppeteer");
-//mongodb://localhost:27017/gameDb
 
 mongoose.connect("mongodb+srv://admin-bill:harbey1994@cluster0.ea0lo.mongodb.net/gameDb?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true, });
 const gameSchema = new mongoose.Schema({time: String, ball1color: String, ball1number: Number, ball2color: String, ball2number: Number, ball3color: String, ball3number: Number, ball4color: String, ball4number: Number, ball5color: String, ball5number: Number, ball6color: String, ball6number: Number});
@@ -82,8 +82,24 @@ scrapeData("https://logigames.bet9ja.com/Games/Launcher?gameId=11000&provider=0&
 function callScrapeDataAgain(){
   setTimeout(()=>{
     scrapeData("https://logigames.bet9ja.com/Games/Launcher?gameId=11000&provider=0&sid=&pff=1&skin=201");
-  }, 3000)
+  }, 2000)
 }
+
+const pingHome = function(){
+  fetch("https://lit-dawn-27057.herokuapp.com/")
+  .then(res => res.text())
+    .then(body => console.log(body))
+    .catch(err => console.error(err));
+}
+setInterval(pingHome, 15*60*1000); 
+
+const pingPlaceHolder = function(){
+  fetch('https://jsonplaceholder.typicode.com/todos/1')
+  .then(response => response.json())
+  .then(json => console.log(json))
+  .catch(err => console.error(err));
+}
+setInterval(pingPlaceHolder, 20*60*1000); 
 
 http.createServer((request, response)=>{
   if(request.url == "/" && request.method == "GET"){
@@ -91,4 +107,4 @@ http.createServer((request, response)=>{
   response.end("your app is working", "utf-8");
   }
   
-}).listen(process.env.PORT || 3000,()=>{console.log("server working")});
+}).listen(process.env.PORT || 3000,()=>{console.log("server started succesfully")});
