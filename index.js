@@ -1,25 +1,44 @@
-var http = require("http");
-const fetch = require('node-fetch');
+const http = require("http");
 const mongoose = require("mongoose");
 const puppeteer = require("puppeteer");
+const fetch = require('node-fetch');
 
+const server = http.createServer((request, response)=>{
+  if(request.url == "/" && request.method == "GET"){
+  response.writeHead(200, { 'Content-Type': 'text/html' });
+  response.end("your app is working", "utf-8");
+  }
+});
+
+const pingHome = function(){
+  fetch("https://lit-dawn-27057.herokuapp.com/")
+  .then(res => res.text())
+    .then(body => console.log(body))
+    .catch(err => console.error(err));
+}
+setInterval(pingHome, 15*60*1000); 
+
+// "mongodb://localhost:27017/gameDb"
 mongoose.connect("mongodb+srv://admin-bill:harbey1994@cluster0.ea0lo.mongodb.net/gameDb?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true, });
 const gameSchema = new mongoose.Schema({time: String, ball1color: String, ball1number: Number, ball2color: String, ball2number: Number, ball3color: String, ball3number: Number, ball4color: String, ball4number: Number, ball5color: String, ball5number: Number, ball6color: String, ball6number: Number});
+
 
 async function scrapeData(url){
 const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
 const page = await browser.newPage();
-await page.goto(url);
+await page.goto(url).catch((err)=>{
+  console.log(err); browser.close(); return callScrapeDataAgain();
+});
 
 //wait for the elements that i want to scrape to become visible in the Dom
 await page.waitForFunction(()=>{
   return document.querySelectorAll('.ball')[2] && document.querySelectorAll('.ball')[2].style.visibility != 'hidden' && document.querySelectorAll('.ball')[3] && document.querySelectorAll('.ball')[3].style.visibility != 'hidden' && document.querySelectorAll('.ball')[4] && document.querySelectorAll('.ball')[4].style.visibility != 'hidden' && document.querySelectorAll('.ball')[5] && document.querySelectorAll('.ball')[5].style.visibility != 'hidden' && document.querySelectorAll('.ball')[6] && document.querySelectorAll('.ball')[6].style.visibility != 'hidden' && document.querySelectorAll('.ball')[7] && document.querySelectorAll('.ball')[7].style.visibility != 'hidden';
-}, {timeout: 100000 });
+}, {timeout: 100000 }); // add . catch() 
 
 //wait for the innertext of the 6 balls to appear
 await page.waitForFunction(() => {
 return document.querySelectorAll(".ball")[2].innerText !== '' && document.querySelectorAll(".ball")[3].innerText !== '' && document.querySelectorAll(".ball")[4].innerText !== '' && document.querySelectorAll(".ball")[5].innerText !== '' && document.querySelectorAll(".ball")[6].innerText !== '' && document.querySelectorAll(".ball")[7].innerText !== '';
- }, { timeout: 100000 });
+ }, { timeout: 100000 });  // add .catch()
 
  //get the color and no of the six balls starting from the left
 const [ball1, ball2, ball3, ball4, ball5, ball6] = await page.evaluate(() => {
@@ -65,15 +84,15 @@ ball6color: ball6.color, ball6number: ball6.number,
  Result.save((err, savedDoc, rowsAffected)=>{ 
 if(err){
   //console.log("data not saved " + err);
-  callScrapeDataAgain();
+   return callScrapeDataAgain();
 }else{
   //console.log("data saved succesfully");
-  callScrapeDataAgain();
+   return callScrapeDataAgain();
 }
 });
 
   //close the browser
-  await browser.close();
+ await browser.close();
 
 }
 
@@ -82,16 +101,8 @@ scrapeData("https://logigames.bet9ja.com/Games/Launcher?gameId=11000&provider=0&
 function callScrapeDataAgain(){
   setTimeout(()=>{
     scrapeData("https://logigames.bet9ja.com/Games/Launcher?gameId=11000&provider=0&sid=&pff=1&skin=201");
-  }, 2000)
+  }, 3000)
 }
-
-const pingHome = function(){
-  fetch("https://lit-dawn-27057.herokuapp.com/")
-  .then(res => res.text())
-    .then(body => console.log(body))
-    .catch(err => console.error(err));
-}
-setInterval(pingHome, 15*60*1000); 
 
 const pingPlaceHolder = function(){
   fetch('https://jsonplaceholder.typicode.com/todos/1')
@@ -101,10 +112,5 @@ const pingPlaceHolder = function(){
 }
 setInterval(pingPlaceHolder, 20*60*1000); 
 
-http.createServer((request, response)=>{
-  if(request.url == "/" && request.method == "GET"){
-  response.writeHead(200, { 'Content-Type': 'text/html' });
-  response.end("your app is working", "utf-8");
-  }
-  
-}).listen(process.env.PORT || 3000,()=>{console.log("server started succesfully")});
+
+server.listen(process.env.PORT || 3000,()=>{console.log("server started succesfully")});
