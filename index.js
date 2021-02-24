@@ -18,27 +18,26 @@ const pingHome = function(){
 }
 setInterval(pingHome, 15*60*1000); 
 
-// "mongodb://localhost:27017/gameDb"
+//"mongodb://localhost:27017/gameDb"
+//"mongodb+srv://admin-bill:harbey1994@cluster0.ea0lo.mongodb.net/gameDb?retryWrites=true&w=majority"
 mongoose.connect("mongodb+srv://admin-bill:harbey1994@cluster0.ea0lo.mongodb.net/gameDb?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true, });
 const gameSchema = new mongoose.Schema({time: String, ball1color: String, ball1number: Number, ball2color: String, ball2number: Number, ball3color: String, ball3number: Number, ball4color: String, ball4number: Number, ball5color: String, ball5number: Number, ball6color: String, ball6number: Number});
 
-
 async function scrapeData(url){
-const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
-const page = await browser.newPage();
-await page.goto(url).catch((err)=>{
-  console.log(err); browser.close(); return callScrapeDataAgain();
-});
+  try{
+const browser = await puppeteer.launch({ /*headless:false,*/ args: ['--no-sandbox'/*, "--disabled-setupid-sandbox"*/] }).catch((err)=>{throw "pupperter is unable to launch"});
+const page = await browser.newPage().catch((err)=>{browser.close(); throw "browser is unable to open new page"});
+await page.goto(url).catch((err)=>{browser.close(); throw "Either there is No internet or website is down or not accesible"});
 
 //wait for the elements that i want to scrape to become visible in the Dom
 await page.waitForFunction(()=>{
   return document.querySelectorAll('.ball')[2] && document.querySelectorAll('.ball')[2].style.visibility != 'hidden' && document.querySelectorAll('.ball')[3] && document.querySelectorAll('.ball')[3].style.visibility != 'hidden' && document.querySelectorAll('.ball')[4] && document.querySelectorAll('.ball')[4].style.visibility != 'hidden' && document.querySelectorAll('.ball')[5] && document.querySelectorAll('.ball')[5].style.visibility != 'hidden' && document.querySelectorAll('.ball')[6] && document.querySelectorAll('.ball')[6].style.visibility != 'hidden' && document.querySelectorAll('.ball')[7] && document.querySelectorAll('.ball')[7].style.visibility != 'hidden';
-}, {timeout: 100000 }); // add . catch() 
+}, {timeout: 100000 }).catch((err)=>{throw "Strange, the element needed to be selected is somehow not display/present on page"}); 
 
 //wait for the innertext of the 6 balls to appear
 await page.waitForFunction(() => {
 return document.querySelectorAll(".ball")[2].innerText !== '' && document.querySelectorAll(".ball")[3].innerText !== '' && document.querySelectorAll(".ball")[4].innerText !== '' && document.querySelectorAll(".ball")[5].innerText !== '' && document.querySelectorAll(".ball")[6].innerText !== '' && document.querySelectorAll(".ball")[7].innerText !== '';
- }, { timeout: 100000 });  // add .catch()
+ }, { timeout: 100000 }).catch((err)=>{throw "Very strange, either d innertext or classlist[1] of d element needed to be selected did not appear"}); 
 
  //get the color and no of the six balls starting from the left
 const [ball1, ball2, ball3, ball4, ball5, ball6] = await page.evaluate(() => {
@@ -51,7 +50,8 @@ return [
 {number: ball3.innerText,color: ball3.classList[1].split('-')[1]},{number: ball4.innerText,color: ball4.classList[1].split('-')[1]},
 {number: ball5.innerText,color: ball5.classList[1].split('-')[1]},{number: ball6.innerText,color: ball6.classList[1].split('-')[1]}
   ];
-  });
+  }).catch((err)=>{throw "Very strange, the elements displayed but puppeteer could not get the innertext or d classlist[1]"}); 
+
 
   //convert time to nigeria timezone 
   function convertTZ(date, tzString) {
@@ -86,7 +86,7 @@ if(err){
   //console.log("data not saved " + err);
    return callScrapeDataAgain();
 }else{
-  //console.log("data saved succesfully");
+  //console.log("data saved succesfully ");
    return callScrapeDataAgain();
 }
 });
@@ -94,13 +94,16 @@ if(err){
   //close the browser
  await browser.close();
 
+  }catch(err){
+    console.log("Heroku & pupperteer screwed up: " + err); return callScrapeDataAgain();
+  }
 }
 
 scrapeData("https://logigames.bet9ja.com/Games/Launcher?gameId=11000&provider=0&sid=&pff=1&skin=201");
 
 function callScrapeDataAgain(){
   setTimeout(()=>{
-    scrapeData("https://logigames.bet9ja.com/Games/Launcher?gameId=11000&provider=0&sid=&pff=1&skin=201");
+  scrapeData("https://logigames.bet9ja.com/Games/Launcher?gameId=11000&provider=0&sid=&pff=1&skin=201");
   }, 3000)
 }
 
