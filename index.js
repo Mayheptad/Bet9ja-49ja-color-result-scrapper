@@ -16,6 +16,7 @@ const pingHome = function(){
     .then(body => console.log(body))
     .catch(err => console.error(err));
 }
+
 setInterval(pingHome, 15*60*1000); 
 
 //"mongodb://localhost:27017/gameDb"
@@ -52,11 +53,11 @@ return [
   ];
   }).catch((err)=>{throw "Very strange, the elements displayed but puppeteer could not get the innertext or d classlist[1]"}); 
 
-
   //convert time to nigeria timezone 
   function convertTZ(date, tzString) {
     return new Date((typeof date === "string" ? new Date(date) : date).toLocaleString("en-US", {timeZone: tzString}));   
 }
+
 const convertDate = convertTZ(new Date(),"Africa/Lagos");
 
  //change convert getMonth() to human readable formart
@@ -98,7 +99,7 @@ if(err){
     console.log("Heroku & pupperteer screwed up: " + err); return callScrapeDataAgain();
   }
 }
-
+            
 scrapeData("https://logigames.bet9ja.com/Games/Launcher?gameId=11000&provider=0&sid=&pff=1&skin=201");
 
 function callScrapeDataAgain(){
