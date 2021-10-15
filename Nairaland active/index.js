@@ -113,7 +113,7 @@ try{
 setTimeout( _ => updateNl(), 300000)
 
 const pingHome = function(){
-  fetch("quiet-castle-39903.herokuapp.com")
+  fetch("/")
   .then(res => res.text())
     .then(body => console.log(body))
     .catch(err => console.error(err));
