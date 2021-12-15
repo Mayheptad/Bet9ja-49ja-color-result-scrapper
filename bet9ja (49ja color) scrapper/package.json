@@ -1,0 +1,22 @@
+{
+  "name": "scrapper",
+  "version": "1.0.0",
+  "description": "scrape bet9ja",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": "13.8.0",
+    "npm": "6.13.6"
+  },
+  "keywords": [],
+  "author": "mayheptad",
+  "license": "ISC",
+  "dependencies": {
+    "mongoose": "^5.11.15",
+    "node-fetch": "^2.6.1",
+    "puppeteer": "^5.5.0"
+  }
+}
